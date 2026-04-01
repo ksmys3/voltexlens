@@ -1,0 +1,8 @@
+node_modules/
+.next/
+certificates/
+qr.png
+*.output
+.vercel
+.env*
+eval_result_photos/
