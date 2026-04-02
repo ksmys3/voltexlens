@@ -43,15 +43,40 @@ function parseSortPage(html) {
 }
 
 /**
- * sort.jsのTITLE変数からサブタイトルを抽出
- * パターン: <div class=f1>メインタイトル<div class=b2>サブタイトル</div></div>
+ * sort.jsのTITLE変数からタイトルとサブタイトルを抽出
+ * パターン: <div class=f1|f2|f3>メインタイトル<div class=b2>サブタイトル</div></div>
+ * HTMLコメントは短縮されることがあるため、TITLE変数を正とする
  */
-function parseSubtitle(js, songId) {
+function parseTitleFromJs(js, songId) {
   const titlePattern = new RegExp(
-    `TITLE${songId}="<div class=f1>.*?<div class=b2>(.+?)</div></div>"`,
+    `TITLE${songId}="(<div class=f[123]>.*?</div>)"`,
   );
   const match = js.match(titlePattern);
-  return match ? match[1].trim() : null;
+  if (!match) return { title: null, subtitle: null };
+
+  const html = match[1];
+
+  // サブタイトル抽出 (<div class=b2>...</div>)
+  const subMatch = html.match(/<div class=b2>(.+?)<\/div>/);
+  const subtitle = subMatch
+    ? subMatch[1]
+        .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+        .replace(/&amp;/g, "&")
+        .trim()
+    : null;
+
+  // HTMLタグを除去し、HTMLエンティティをデコードしてフルタイトルを取得
+  const fullText = html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return { title: fullText, subtitle };
 }
 
 /**
@@ -164,8 +189,12 @@ async function main() {
           const js = await fetchText(url);
           song.difficulties = parseSortJs(js, song.songId);
 
-          // サブタイトル取得
-          song.subtitle = parseSubtitle(js, song.songId);
+          // TITLE変数からタイトル・サブタイトル取得
+          const parsed = parseTitleFromJs(js, song.songId);
+          if (parsed.title) {
+            song.title = parsed.title;
+          }
+          song.subtitle = parsed.subtitle;
 
           // アーティスト名も取得
           const artistMatch = js.match(
