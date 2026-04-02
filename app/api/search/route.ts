@@ -12,11 +12,16 @@ export async function GET(request: NextRequest) {
     results: matches.map((m) => ({
       title: m.song.title,
       artist: m.song.artist,
-      difficulty: m.diff.name,
-      level: m.diff.level,
-      detailedLevel: m.diff.detailedLevel ?? null,
       score: m.score,
-      url: m.url,
+      difficulties: m.song.difficulties
+        .filter((d) => d.level != null)
+        .map((d) => ({
+          name: d.name,
+          suffix: d.suffix,
+          level: d.level,
+          detailedLevel: d.detailedLevel ?? null,
+          url: `https://sdvx.in/${m.song.version}/${m.song.songId}${d.suffix}.htm`,
+        })),
     })),
   });
 }

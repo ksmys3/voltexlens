@@ -119,6 +119,60 @@
   margin-top: 16px;
 }
 
+.searchList {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.searchRow {
+  padding: 12px 0;
+  border-bottom: 1px solid #222;
+}
+
+.searchRowTitle {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diffPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.diffPill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #ccc;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.diffPill:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.diffPillName {
+  color: #888;
+  font-size: 10px;
+}
+
+.diffPillLevel {
+  font-weight: 600;
+}
+
 /* カメラ */
 .cameraView {
   flex: 1;

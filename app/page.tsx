@@ -26,6 +26,21 @@ interface HistoryEntry {
   timestamp: number;
 }
 
+interface SearchDifficulty {
+  name: string;
+  suffix: string;
+  level: number;
+  detailedLevel: string | null;
+  url: string;
+}
+
+interface SearchResultEntry {
+  title: string;
+  artist: string | null;
+  score: number;
+  difficulties: SearchDifficulty[];
+}
+
 const HISTORY_KEY = "voltexlens-history";
 const HISTORY_MAX = 100;
 
@@ -74,7 +89,7 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<MatchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResultEntry[]>([]);
   const [searching, setSearching] = useState(false);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -302,35 +317,32 @@ export default function Home() {
             <p className={styles.searchStatus}>該当する楽曲が見つかりません</p>
           )}
           {searchResults.length > 0 && (
-            <ul className={styles.historyList}>
+            <ul className={styles.searchList}>
               {searchResults.map((r) => (
-                <li key={r.url} className={styles.historyRow}>
-                  <div className={styles.historyRowInfo}>
-                    <span className={styles.historyRowDiff}>
-                      {r.difficulty} {r.detailedLevel ?? r.level}
-                    </span>
-                    <span className={styles.historyRowTitle}>{r.title}</span>
+                <li key={r.title + r.score} className={styles.searchRow}>
+                  <span className={styles.searchRowTitle}>{r.title}</span>
+                  <div className={styles.diffPills}>
+                    {r.difficulties.map((d) => (
+                      <a
+                        key={d.suffix}
+                        href={d.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.diffPill}
+                        onClick={() => handleOpenChart({
+                          title: r.title,
+                          artist: r.artist,
+                          difficulty: d.name,
+                          level: d.level,
+                          detailedLevel: d.detailedLevel,
+                          url: d.url,
+                        })}
+                      >
+                        <span className={styles.diffPillName}>{d.name}</span>
+                        <span className={styles.diffPillLevel}>{d.detailedLevel ?? d.level}</span>
+                      </a>
+                    ))}
                   </div>
-                  <a
-                    href={r.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.historyRowLink}
-                    onClick={() => handleOpenChart({
-                      title: r.title,
-                      artist: r.artist,
-                      difficulty: r.difficulty,
-                      level: r.level,
-                      detailedLevel: r.detailedLevel,
-                      url: r.url,
-                    })}
-                    aria-label="譜面を表示"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M7 17L17 7" />
-                      <path d="M7 7h10v10" />
-                    </svg>
-                  </a>
                 </li>
               ))}
             </ul>

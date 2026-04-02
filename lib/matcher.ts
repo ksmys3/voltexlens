@@ -266,18 +266,20 @@ export function findBestMatch(
 
 // === 手動検索 ===
 
-export function searchSongs(query: string): MatchResult[] {
-  const allMatches: MatchResult[] = [];
+export interface SearchResult {
+  song: Song;
+  score: number;
+}
+
+export function searchSongs(query: string): SearchResult[] {
+  const allMatches: SearchResult[] = [];
 
   for (const song of songMap) {
     const score = similarity(query, song.title);
     if (score < 0.3) continue;
-    const diff = [...song.difficulties].reverse().find((d) => d.level != null);
-    if (!diff) continue;
-    allMatches.push({
-      song, diff, score, ocrTitle: query,
-      url: `https://sdvx.in/${song.version}/${song.songId}${diff.suffix}.htm`,
-    });
+    const hasValidDiff = song.difficulties.some((d) => d.level != null);
+    if (!hasValidDiff) continue;
+    allMatches.push({ song, score });
   }
 
   allMatches.sort((a, b) => b.score - a.score);
