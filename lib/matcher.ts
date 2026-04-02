@@ -251,5 +251,15 @@ export function findBestMatch(
   }
 
   allMatches.sort((a, b) => b.score - a.score);
-  return allMatches.slice(0, 5);
+
+  const seen = new Set<string>();
+  const unique: MatchResult[] = [];
+  for (const m of allMatches) {
+    if (!seen.has(m.url)) {
+      seen.add(m.url);
+      unique.push(m);
+    }
+    if (unique.length >= 5) break;
+  }
+  return unique;
 }
