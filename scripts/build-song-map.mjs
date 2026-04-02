@@ -188,14 +188,21 @@ async function main() {
   }
 
   // Step 3: JSON出力
-  const output = songs.map((s) => ({
-    songId: s.songId,
-    version: s.version,
-    title: s.title,
-    artist: s.artist || null,
-    subtitle: s.subtitle || null,
-    difficulties: s.difficulties,
-  }));
+  const output = songs.map((s) => {
+    // サブタイトルがtitleに含まれている場合は除去して純粋な曲名のみにする
+    let title = s.title;
+    if (s.subtitle && title.endsWith(s.subtitle)) {
+      title = title.slice(0, -s.subtitle.length).trim();
+    }
+    return {
+      songId: s.songId,
+      version: s.version,
+      title,
+      artist: s.artist || null,
+      subtitle: s.subtitle || null,
+      difficulties: s.difficulties,
+    };
+  });
 
   // data ディレクトリ作成
   const fs = await import("node:fs");
