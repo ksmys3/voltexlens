@@ -327,6 +327,7 @@ export default function Home() {
                     {r.title}
                     {r.subtitle && <span className={styles.searchRowSubtitle}> {r.subtitle}</span>}
                   </span>
+                  {r.artist && <span className={styles.searchRowArtist}>{r.artist}</span>}
                   <div className={styles.diffPills}>
                     {r.difficulties.map((d) => (
                       <a

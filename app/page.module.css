@@ -133,7 +133,7 @@
 .searchRowTitle {
   display: block;
   font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -142,6 +142,16 @@
 .searchRowSubtitle {
   font-size: 12px;
   color: #888;
+}
+
+.searchRowArtist {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .diffPills {

@@ -43,6 +43,18 @@ function parseSortPage(html) {
 }
 
 /**
+ * HTMLエンティティをデコード
+ */
+function decodeEntities(str) {
+  return str
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"');
+}
+
+/**
  * sort.jsのTITLE変数からタイトルとサブタイトルを抽出
  * パターン: <div class=f1|f2|f3>メインタイトル<div class=b2>サブタイトル</div></div>
  * HTMLコメントは短縮されることがあるため、TITLE変数を正とする
@@ -58,21 +70,10 @@ function parseTitleFromJs(js, songId) {
 
   // サブタイトル抽出 (<div class=b2>...</div>)
   const subMatch = html.match(/<div class=b2>(.+?)<\/div>/);
-  const subtitle = subMatch
-    ? subMatch[1]
-        .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-        .replace(/&amp;/g, "&")
-        .trim()
-    : null;
+  const subtitle = subMatch ? decodeEntities(subMatch[1]).trim() : null;
 
   // HTMLタグを除去し、HTMLエンティティをデコードしてフルタイトルを取得
-  const fullText = html
-    .replace(/<[^>]+>/g, "")
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
+  const fullText = decodeEntities(html.replace(/<[^>]+>/g, ""))
     .replace(/\s+/g, " ")
     .trim();
 
@@ -201,7 +202,7 @@ async function main() {
             /ARTIST\d+="<div class=b2>　\/ (.+?)<\/div>"/,
           );
           if (artistMatch) {
-            song.artist = artistMatch[1];
+            song.artist = decodeEntities(artistMatch[1]);
           }
         } catch (err) {
           console.error(`  エラー (${song.songId}): ${err.message}`);
