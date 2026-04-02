@@ -194,12 +194,14 @@ async function main() {
     if (s.subtitle && title.endsWith(s.subtitle)) {
       title = title.slice(0, -s.subtitle.length).trim();
     }
+    const subtitle = s.subtitle || null;
     return {
       songId: s.songId,
       version: s.version,
       title,
       artist: s.artist || null,
-      subtitle: s.subtitle || null,
+      subtitle,
+      fullTitle: subtitle ? `${title} ${subtitle}` : title,
       difficulties: s.difficulties,
     };
   });

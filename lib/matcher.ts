@@ -21,6 +21,7 @@ interface Song {
   title: string;
   artist: string | null;
   subtitle: string | null;
+  fullTitle: string;
   difficulties: Difficulty[];
 }
 
@@ -223,7 +224,16 @@ function similarity(a: string, b: string): number {
   if (na === nb) return 1.0;
   const maxLen = Math.max(na.length, nb.length);
   if (maxLen === 0) return 1.0;
-  return 1 - distance(na, nb) / maxLen;
+  let score = 1 - distance(na, nb) / maxLen;
+  // クエリが曲名に含まれる場合（またはその逆）、ボーナスを加算
+  if (na.length >= 2 && nb.length >= 2) {
+    if (nb.includes(na)) {
+      score = Math.max(score, 0.8 + 0.2 * (na.length / nb.length));
+    } else if (na.includes(nb)) {
+      score = Math.max(score, 0.8 + 0.2 * (nb.length / na.length));
+    }
+  }
+  return score;
 }
 
 export function findBestMatch(
@@ -236,7 +246,7 @@ export function findBestMatch(
   for (const title of ocrTitleCandidates) {
     let bestForTitle: MatchResult | null = null;
     for (const song of songMap) {
-      const score = similarity(title, song.title);
+      const score = similarity(title, song.fullTitle);
       if (score < 0.4) continue;
       const diff = suffix
         ? song.difficulties.find((d) => d.suffix === suffix && d.level != null)
@@ -276,7 +286,7 @@ export function searchSongs(query: string): SearchResult[] {
   const allMatches: SearchResult[] = [];
 
   for (const song of songMap) {
-    const score = similarity(query, song.title);
+    const score = similarity(query, song.fullTitle);
     if (score < 0.3) continue;
     const hasValidDiff = song.difficulties.some((d) => d.level != null);
     if (!hasValidDiff) continue;
