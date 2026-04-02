@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { searchSongs } from "@/lib/matcher";
 
 export async function GET(request: NextRequest) {
-  const q = request.nextUrl.searchParams.get("q")?.trim();
+  const q = request.nextUrl.searchParams.get("q")?.trim().slice(0, 100);
   if (!q) {
     return NextResponse.json({ results: [] });
   }
