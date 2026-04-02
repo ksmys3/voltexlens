@@ -126,27 +126,23 @@
 }
 
 .searchRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #222;
 }
 
 .searchRowTitle {
+  display: block;
   font-size: 14px;
+  margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-shrink: 1;
-  min-width: 0;
 }
 
 .diffPills {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 4px;
-  flex-shrink: 0;
 }
 
 .diffPill {
