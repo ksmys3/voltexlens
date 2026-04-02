@@ -446,6 +446,16 @@
   font-size: 11px;
   color: #888;
 }
+.historyRowDiff[data-diff="NOV"] { color: #a855f7; }
+.historyRowDiff[data-diff="ADV"] { color: #d4a017; }
+.historyRowDiff[data-diff="EXH"] { color: #ef5350; }
+.historyRowDiff[data-diff="MXM"] { color: #90a4ae; }
+.historyRowDiff[data-diff="INF"] { color: #e91e90; }
+.historyRowDiff[data-diff="GRV"] { color: #ff6d00; }
+.historyRowDiff[data-diff="HVN"] { color: #42a5f5; }
+.historyRowDiff[data-diff="VVD"] { color: #e91e63; }
+.historyRowDiff[data-diff="XCD"] { color: #5c6bc0; }
+.historyRowDiff[data-diff="ULT"] { color: #e6c700; }
 
 .historyRowTitle {
   font-size: 14px;

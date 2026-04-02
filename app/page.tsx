@@ -427,7 +427,7 @@ export default function Home() {
                 {alternatives.map((alt) => (
                   <li key={alt.url} className={styles.historyRow}>
                     <div className={styles.historyRowInfo}>
-                      <span className={styles.historyRowDiff}>
+                      <span className={styles.historyRowDiff} data-diff={alt.difficulty}>
                         {alt.difficulty} {alt.detailedLevel ?? alt.level}
                       </span>
                       <span className={styles.historyRowTitle}>
@@ -487,7 +487,7 @@ function HistoryRow({ entry, onOpen }: { entry: HistoryEntry; onOpen: (e: Omit<H
   return (
     <li className={styles.historyRow}>
       <div className={styles.historyRowInfo}>
-        <span className={styles.historyRowDiff}>
+        <span className={styles.historyRowDiff} data-diff={entry.difficulty}>
           {entry.difficulty} {entry.detailedLevel ?? entry.level}
         </span>
         <span className={styles.historyRowTitle}>
