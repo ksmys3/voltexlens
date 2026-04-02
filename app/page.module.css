@@ -185,6 +185,7 @@
   justify-content: center;
   gap: 20px;
   padding: 24px;
+  overflow-y: auto;
 }
 
 .resultInfo {
@@ -253,6 +254,21 @@
   color: #888;
   text-align: center;
   margin: 0;
+}
+
+/* もしかして？セクション */
+.altSection {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 4px;
+}
+
+.altTitle {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #333;
 }
 
 /* 履歴セクション (select画面内) */

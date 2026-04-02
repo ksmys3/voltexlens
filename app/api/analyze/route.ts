@@ -85,20 +85,21 @@ export async function POST(request: NextRequest) {
     const matches = findBestMatch(candidates, diffName);
     const topMatch = matches[0] ?? null;
 
+    const formatMatch = (m: (typeof matches)[number]) => ({
+      title: m.song.title,
+      artist: m.song.artist,
+      difficulty: m.diff.name,
+      level: m.diff.level,
+      detailedLevel: m.diff.detailedLevel ?? null,
+      score: m.score,
+      url: m.url,
+    });
+
     return NextResponse.json({
       diffName,
       candidates,
-      match: topMatch
-        ? {
-            title: topMatch.song.title,
-            artist: topMatch.song.artist,
-            difficulty: topMatch.diff.name,
-            level: topMatch.diff.level,
-            detailedLevel: topMatch.diff.detailedLevel ?? null,
-            score: topMatch.score,
-            url: topMatch.url,
-          }
-        : null,
+      match: topMatch ? formatMatch(topMatch) : null,
+      alternatives: matches.slice(1, 5).map(formatMatch),
     });
   } catch (err) {
     console.error("Analyze error:", err);
