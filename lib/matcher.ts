@@ -238,8 +238,8 @@ export function findBestMatch(
       const score = similarity(title, song.title);
       if (score < 0.4) continue;
       const diff = suffix
-        ? song.difficulties.find((d) => d.suffix === suffix)
-        : song.difficulties[song.difficulties.length - 1];
+        ? song.difficulties.find((d) => d.suffix === suffix && d.level != null)
+        : [...song.difficulties].reverse().find((d) => d.level != null);
       if (diff && (!bestForTitle || score > bestForTitle.score)) {
         bestForTitle = {
           song, diff, score, ocrTitle: title,
