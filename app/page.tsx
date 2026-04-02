@@ -197,9 +197,11 @@ export default function Home() {
         {state === "history" && (
           <button
             onClick={() => {
-              localStorage.removeItem(HISTORY_KEY);
-              setHistory([]);
-              setState("select");
+              if (window.confirm("履歴をすべて削除しますか？")) {
+                localStorage.removeItem(HISTORY_KEY);
+                setHistory([]);
+                setState("select");
+              }
             }}
             className={styles.backBtn}
             aria-label="履歴をすべて削除"
