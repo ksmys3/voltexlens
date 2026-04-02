@@ -20,6 +20,7 @@ interface Song {
   version: string;
   title: string;
   artist: string | null;
+  subtitle: string | null;
   difficulties: Difficulty[];
 }
 

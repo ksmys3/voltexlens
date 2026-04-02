@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
     const formatMatch = (m: (typeof matches)[number]) => ({
       title: m.song.title,
       artist: m.song.artist,
+      subtitle: m.song.subtitle,
       difficulty: m.diff.name,
       level: m.diff.level,
       detailedLevel: m.diff.detailedLevel ?? null,

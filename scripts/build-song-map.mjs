@@ -43,6 +43,18 @@ function parseSortPage(html) {
 }
 
 /**
+ * sort.jsのTITLE変数からサブタイトルを抽出
+ * パターン: <div class=f1>メインタイトル<div class=b2>サブタイトル</div></div>
+ */
+function parseSubtitle(js, songId) {
+  const titlePattern = new RegExp(
+    `TITLE${songId}="<div class=f1>.*?<div class=b2>(.+?)</div></div>"`,
+  );
+  const match = js.match(titlePattern);
+  return match ? match[1].trim() : null;
+}
+
+/**
  * sort.jsから難易度情報を抽出
  * TBR{id}N() → "[曲名] [NOV]" のようなタイトル関数から難易度を特定
  * LV{id}X の存在から利用可能な難易度を判定
@@ -152,6 +164,9 @@ async function main() {
           const js = await fetchText(url);
           song.difficulties = parseSortJs(js, song.songId);
 
+          // サブタイトル取得
+          song.subtitle = parseSubtitle(js, song.songId);
+
           // アーティスト名も取得
           const artistMatch = js.match(
             /ARTIST\d+="<div class=b2>　\/ (.+?)<\/div>"/,
@@ -178,6 +193,7 @@ async function main() {
     version: s.version,
     title: s.title,
     artist: s.artist || null,
+    subtitle: s.subtitle || null,
     difficulties: s.difficulties,
   }));
 

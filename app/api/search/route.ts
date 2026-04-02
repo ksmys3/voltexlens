@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     results: matches.map((m) => ({
       title: m.song.title,
       artist: m.song.artist,
+      subtitle: m.song.subtitle,
       score: m.score,
       difficulties: m.song.difficulties
         .filter((d) => d.level != null)

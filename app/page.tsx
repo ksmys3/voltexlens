@@ -9,6 +9,7 @@ type AppState = "select" | "camera" | "analyzing" | "result" | "error" | "histor
 interface MatchResult {
   title: string;
   artist: string | null;
+  subtitle: string | null;
   difficulty: string;
   level: number;
   detailedLevel: string | null;
@@ -19,6 +20,7 @@ interface MatchResult {
 interface HistoryEntry {
   title: string;
   artist: string | null;
+  subtitle: string | null;
   difficulty: string;
   level: number;
   detailedLevel: string | null;
@@ -37,6 +39,7 @@ interface SearchDifficulty {
 interface SearchResultEntry {
   title: string;
   artist: string | null;
+  subtitle: string | null;
   score: number;
   difficulties: SearchDifficulty[];
 }
@@ -320,7 +323,10 @@ export default function Home() {
             <ul className={styles.searchList}>
               {searchResults.map((r) => (
                 <li key={r.title + r.score} className={styles.searchRow}>
-                  <span className={styles.searchRowTitle}>{r.title}</span>
+                  <span className={styles.searchRowTitle}>
+                    {r.title}
+                    {r.subtitle && <span className={styles.searchRowSubtitle}> {r.subtitle}</span>}
+                  </span>
                   <div className={styles.diffPills}>
                     {r.difficulties.map((d) => (
                       <a
@@ -333,6 +339,7 @@ export default function Home() {
                         onClick={() => handleOpenChart({
                           title: r.title,
                           artist: r.artist,
+                          subtitle: r.subtitle,
                           difficulty: d.name,
                           level: d.level,
                           detailedLevel: d.detailedLevel,
@@ -378,6 +385,9 @@ export default function Home() {
               {result.difficulty} {result.detailedLevel ?? result.level}
             </p>
             <h2 className={styles.resultTitle}>{result.title}</h2>
+            {result.subtitle && (
+              <p className={styles.resultSubtitle}>{result.subtitle}</p>
+            )}
             {result.artist && (
               <p className={styles.resultArtist}>{result.artist}</p>
             )}
@@ -393,6 +403,7 @@ export default function Home() {
             onClick={() => handleOpenChart({
               title: result.title,
               artist: result.artist,
+              subtitle: result.subtitle,
               difficulty: result.difficulty,
               level: result.level,
               detailedLevel: result.detailedLevel,
@@ -417,7 +428,10 @@ export default function Home() {
                       <span className={styles.historyRowDiff}>
                         {alt.difficulty} {alt.detailedLevel ?? alt.level}
                       </span>
-                      <span className={styles.historyRowTitle}>{alt.title}</span>
+                      <span className={styles.historyRowTitle}>
+                        {alt.title}
+                        {alt.subtitle && <span className={styles.historyRowSubtitle}> {alt.subtitle}</span>}
+                      </span>
                     </div>
                     <a
                       href={alt.url}
@@ -427,6 +441,7 @@ export default function Home() {
                       onClick={() => handleOpenChart({
                         title: alt.title,
                         artist: alt.artist,
+                        subtitle: alt.subtitle,
                         difficulty: alt.difficulty,
                         level: alt.level,
                         detailedLevel: alt.detailedLevel,
@@ -473,7 +488,10 @@ function HistoryRow({ entry, onOpen }: { entry: HistoryEntry; onOpen: (e: Omit<H
         <span className={styles.historyRowDiff}>
           {entry.difficulty} {entry.detailedLevel ?? entry.level}
         </span>
-        <span className={styles.historyRowTitle}>{entry.title}</span>
+        <span className={styles.historyRowTitle}>
+          {entry.title}
+          {entry.subtitle && <span className={styles.historyRowSubtitle}> {entry.subtitle}</span>}
+        </span>
       </div>
       <span className={styles.historyRowDate}>{dateStr}</span>
       <a
@@ -484,6 +502,7 @@ function HistoryRow({ entry, onOpen }: { entry: HistoryEntry; onOpen: (e: Omit<H
         onClick={() => onOpen({
           title: entry.title,
           artist: entry.artist,
+          subtitle: entry.subtitle,
           difficulty: entry.difficulty,
           level: entry.level,
           detailedLevel: entry.detailedLevel,
