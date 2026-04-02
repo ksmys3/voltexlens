@@ -263,3 +263,23 @@ export function findBestMatch(
   }
   return unique;
 }
+
+// === 手動検索 ===
+
+export function searchSongs(query: string): MatchResult[] {
+  const allMatches: MatchResult[] = [];
+
+  for (const song of songMap) {
+    const score = similarity(query, song.title);
+    if (score < 0.3) continue;
+    const diff = [...song.difficulties].reverse().find((d) => d.level != null);
+    if (!diff) continue;
+    allMatches.push({
+      song, diff, score, ocrTitle: query,
+      url: `https://sdvx.in/${song.version}/${song.songId}${diff.suffix}.htm`,
+    });
+  }
+
+  allMatches.sort((a, b) => b.score - a.score);
+  return allMatches.slice(0, 10);
+}

@@ -4,7 +4,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import styles from "./page.module.css";
 
 type Version = "sdvx6" | "sdvx7";
-type AppState = "select" | "camera" | "analyzing" | "result" | "error" | "history";
+type AppState = "select" | "camera" | "analyzing" | "result" | "error" | "history" | "search";
 
 interface MatchResult {
   title: string;
@@ -73,6 +73,10 @@ export default function Home() {
   const [alternatives, setAlternatives] = useState<MatchResult[]>([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<MatchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -178,6 +182,28 @@ export default function Home() {
     setHistory(updated);
   }, []);
 
+  const handleSearchInput = useCallback((q: string) => {
+    setSearchQuery(q);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (!q.trim()) {
+      setSearchResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q.trim())}`);
+        const data = await res.json();
+        setSearchResults(data.results ?? []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+  }, []);
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -220,6 +246,16 @@ export default function Home() {
             <button onClick={() => startCamera("sdvx6")} className={styles.versionBtn}>
               SDVX EXCEED GEAR
             </button>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSearchResults([]);
+                setState("search");
+              }}
+              className={styles.searchLinkBtn}
+            >
+              曲名で検索
+            </button>
           </div>
           {history.length > 0 && (
             <div className={styles.historySection}>
@@ -246,6 +282,59 @@ export default function Home() {
               <HistoryRow key={entry.url} entry={entry} onOpen={handleOpenChart} />
             ))}
           </ul>
+        </div>
+      )}
+
+      {state === "search" && (
+        <div className={styles.searchView}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="曲名を入力..."
+            value={searchQuery}
+            onChange={(e) => handleSearchInput(e.target.value)}
+            autoFocus
+          />
+          {searching && (
+            <p className={styles.searchStatus}>検索中...</p>
+          )}
+          {!searching && searchQuery.trim() && searchResults.length === 0 && (
+            <p className={styles.searchStatus}>該当する楽曲が見つかりません</p>
+          )}
+          {searchResults.length > 0 && (
+            <ul className={styles.historyList}>
+              {searchResults.map((r) => (
+                <li key={r.url} className={styles.historyRow}>
+                  <div className={styles.historyRowInfo}>
+                    <span className={styles.historyRowDiff}>
+                      {r.difficulty} {r.detailedLevel ?? r.level}
+                    </span>
+                    <span className={styles.historyRowTitle}>{r.title}</span>
+                  </div>
+                  <a
+                    href={r.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.historyRowLink}
+                    onClick={() => handleOpenChart({
+                      title: r.title,
+                      artist: r.artist,
+                      difficulty: r.difficulty,
+                      level: r.level,
+                      detailedLevel: r.detailedLevel,
+                      url: r.url,
+                    })}
+                    aria-label="譜面を表示"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M7 17L17 7" />
+                      <path d="M7 7h10v10" />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
