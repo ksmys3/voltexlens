@@ -254,12 +254,12 @@ export default function Home() {
       {state === "select" && (
         <div className={styles.selectView}>
           <div className={styles.selectViewButtons}>
-            <p className={styles.selectLabel}>バージョンを選択してください</p>
+            <p className={styles.selectLabel}>プレー中のバージョンを選択</p>
             <button onClick={() => startCamera("sdvx7")} className={styles.versionBtn}>
               SDVX ∇
             </button>
             <button onClick={() => startCamera("sdvx6")} className={styles.versionBtn}>
-              SDVX EXCEED GEAR
+              SDVX EXCEED GEAR (コナステ)
             </button>
             <button
               onClick={() => {
