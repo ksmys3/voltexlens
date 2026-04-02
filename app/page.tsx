@@ -329,6 +329,7 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.diffPill}
+                        data-diff={d.name}
                         onClick={() => handleOpenChart({
                           title: r.title,
                           artist: r.artist,
