@@ -1,7 +1,5 @@
 node_modules/
 .next/
-certificates/
-qr.png
 *.output
 .vercel
 .env*
