@@ -256,7 +256,7 @@ export default function Home() {
           <div className={styles.selectViewButtons}>
             <p className={styles.selectLabel}>プレー中のバージョンを選択</p>
             <button onClick={() => startCamera("sdvx7")} className={styles.versionBtn}>
-              SDVX ∇
+              SDVX ∇ (AC)
             </button>
             <button onClick={() => startCamera("sdvx6")} className={styles.versionBtn}>
               SDVX EXCEED GEAR (コナステ)
