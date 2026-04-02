@@ -4,7 +4,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import styles from "./page.module.css";
 
 type Version = "sdvx6" | "sdvx7";
-type AppState = "select" | "camera" | "analyzing" | "result" | "error";
+type AppState = "select" | "camera" | "analyzing" | "result" | "error" | "history";
 
 interface MatchResult {
   title: string;
@@ -14,6 +14,39 @@ interface MatchResult {
   detailedLevel: string | null;
   score: number;
   url: string;
+}
+
+interface HistoryEntry {
+  title: string;
+  artist: string | null;
+  difficulty: string;
+  level: number;
+  detailedLevel: string | null;
+  url: string;
+  timestamp: number;
+}
+
+const HISTORY_KEY = "voltexlens-history";
+const HISTORY_MAX = 100;
+
+function loadHistory(): HistoryEntry[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveToHistory(entry: Omit<HistoryEntry, "timestamp">): HistoryEntry[] {
+  const history = loadHistory();
+  const existing = history.findIndex((h) => h.url === entry.url);
+  if (existing !== -1) history.splice(existing, 1);
+  const newEntry: HistoryEntry = { ...entry, timestamp: Date.now() };
+  history.unshift(newEntry);
+  if (history.length > HISTORY_MAX) history.length = HISTORY_MAX;
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  return history;
 }
 
 // オーバーレイ枠の定義
@@ -38,6 +71,7 @@ export default function Home() {
   const [version, setVersion] = useState<Version>("sdvx7");
   const [result, setResult] = useState<MatchResult | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -131,14 +165,28 @@ export default function Home() {
   }, [version, startCamera]);
 
   useEffect(() => {
+    setHistory(loadHistory());
     return () => stopCamera();
   }, [stopCamera]);
+
+  const handleOpenChart = useCallback((entry: Omit<HistoryEntry, "timestamp">) => {
+    const updated = saveToHistory(entry);
+    setHistory(updated);
+  }, []);
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>VoltexLens</h1>
-        {state !== "select" && (
+        {state === "history" && (
+          <button onClick={() => setState("select")} className={styles.backBtn} aria-label="戻る">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+          </button>
+        )}
+        {state !== "select" && state !== "history" && (
           <button onClick={reset} className={styles.backBtn} aria-label="ホーム">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -150,13 +198,52 @@ export default function Home() {
 
       {state === "select" && (
         <div className={styles.selectView}>
-          <p className={styles.selectLabel}>バージョンを選択してください</p>
-          <button onClick={() => startCamera("sdvx7")} className={styles.versionBtn}>
-            SDVX ∇
-          </button>
-          <button onClick={() => startCamera("sdvx6")} className={styles.versionBtn}>
-            SDVX EXCEED GEAR
-          </button>
+          <div className={styles.selectViewButtons}>
+            <p className={styles.selectLabel}>バージョンを選択してください</p>
+            <button onClick={() => startCamera("sdvx7")} className={styles.versionBtn}>
+              SDVX ∇
+            </button>
+            <button onClick={() => startCamera("sdvx6")} className={styles.versionBtn}>
+              SDVX EXCEED GEAR
+            </button>
+          </div>
+          {history.length > 0 && (
+            <div className={styles.historySection}>
+              <p className={styles.historySectionTitle}>最近の履歴</p>
+              <ul className={styles.historyList}>
+                {history.slice(0, 5).map((entry) => (
+                  <HistoryRow key={entry.url} entry={entry} onOpen={handleOpenChart} />
+                ))}
+              </ul>
+              {history.length > 5 && (
+                <button onClick={() => setState("history")} className={styles.showAllBtn}>
+                  すべて表示
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {state === "history" && (
+        <div className={styles.historyView}>
+          <ul className={styles.historyList}>
+            {history.map((entry) => (
+              <HistoryRow key={entry.url} entry={entry} onOpen={handleOpenChart} />
+            ))}
+          </ul>
+          {history.length > 0 && (
+            <button
+              onClick={() => {
+                localStorage.removeItem(HISTORY_KEY);
+                setHistory([]);
+                setState("select");
+              }}
+              className={styles.clearBtn}
+            >
+              履歴をすべて削除
+            </button>
+          )}
         </div>
       )}
 
@@ -194,7 +281,20 @@ export default function Home() {
               一致度: {(result.score * 100).toFixed(0)}%
             </p>
           </div>
-          <a href={result.url} target="_blank" rel="noopener noreferrer" className={styles.linkBtn}>
+          <a
+            href={result.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.linkBtn}
+            onClick={() => handleOpenChart({
+              title: result.title,
+              artist: result.artist,
+              difficulty: result.difficulty,
+              level: result.level,
+              detailedLevel: result.detailedLevel,
+              url: result.url,
+            })}
+          >
             譜面を表示 (sdvx.in)
           </a>
           <button onClick={retake} className={styles.retryBtn} aria-label="もう一度撮影">
@@ -213,6 +313,43 @@ export default function Home() {
         </div>
       )}
     </div>
+  );
+}
+
+function HistoryRow({ entry, onOpen }: { entry: HistoryEntry; onOpen: (e: Omit<HistoryEntry, "timestamp">) => void }) {
+  const date = new Date(entry.timestamp);
+  const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+
+  return (
+    <li className={styles.historyRow}>
+      <div className={styles.historyRowInfo}>
+        <span className={styles.historyRowDiff}>
+          {entry.difficulty} {entry.detailedLevel ?? entry.level}
+        </span>
+        <span className={styles.historyRowTitle}>{entry.title}</span>
+      </div>
+      <span className={styles.historyRowDate}>{dateStr}</span>
+      <a
+        href={entry.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.historyRowLink}
+        onClick={() => onOpen({
+          title: entry.title,
+          artist: entry.artist,
+          difficulty: entry.difficulty,
+          level: entry.level,
+          detailedLevel: entry.detailedLevel,
+          url: entry.url,
+        })}
+        aria-label="譜面を表示"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 17L17 7" />
+          <path d="M7 7h10v10" />
+        </svg>
+      </a>
+    </li>
   );
 }
 
