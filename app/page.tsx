@@ -305,7 +305,7 @@ export default function Home() {
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
             </svg>
           </button>
-          {result.score < 0.8 && alternatives.length > 0 && (
+          {alternatives.length > 0 && (
             <div className={styles.altSection}>
               <p className={styles.altTitle}>もしかして？</p>
               <ul className={styles.historyList}>
