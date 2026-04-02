@@ -61,17 +61,53 @@
   text-align: center;
 }
 
-.versionBtn {
-  padding: 16px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
+.versionCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 24px;
   width: 80%;
   max-width: 320px;
+  border: 1px solid #333;
+  border-radius: 14px;
+  background: #1a1a1a;
+  color: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.versionCard:active {
+  background: #222;
+}
+
+.versionCardVii {
+  border-left: 3px solid #7fff00;
+}
+
+.versionCardVi {
+  border-left: 3px solid #4a6a8a;
+}
+
+.versionCardIcon {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.versionCardText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.versionCardName {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.versionCardSub {
+  font-size: 11px;
+  color: #888;
 }
 
 .searchLinkBtn {
