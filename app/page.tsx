@@ -322,7 +322,7 @@ export default function Home() {
           {searchResults.length > 0 && (
             <ul className={styles.searchList}>
               {searchResults.map((r) => (
-                <li key={r.title + r.score} className={styles.searchRow}>
+                <li key={r.difficulties[0]?.url ?? r.title + r.score} className={styles.searchRow}>
                   <span className={styles.searchRowTitle}>
                     {r.title}
                     {r.subtitle && <span className={styles.searchRowSubtitle}> {r.subtitle}</span>}
