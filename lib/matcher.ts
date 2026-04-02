@@ -39,10 +39,33 @@ export interface AnalyzeResult {
   matches: MatchResult[];
 }
 
+// === 正規化 ===
+
+function normalize(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[""]/g, '"')
+    .replace(/['']/g, "'")
+    .replace(/[《》<>＜＞]/g, "")
+    .replace(/[Ø]/gi, "o")
+    .replace(/[×x]/g, "x")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // === データ読み込み ===
 
+interface SongIndexed extends Song {
+  normTitle: string;
+  normFullTitle: string;
+}
+
 const songMapPath = path.join(process.cwd(), "data", "song-map.json");
-const songMap: Song[] = JSON.parse(fs.readFileSync(songMapPath, "utf-8"));
+const songMap: SongIndexed[] = (JSON.parse(fs.readFileSync(songMapPath, "utf-8")) as Song[]).map((s) => ({
+  ...s,
+  normTitle: normalize(s.title),
+  normFullTitle: normalize(s.fullTitle),
+}));
 
 // === 定数 ===
 
@@ -206,26 +229,11 @@ export function extractSongTitleCandidates(fullText: string, version: string): s
 
 // === ファジーマッチング ===
 
-function normalize(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/[""]/g, '"')
-    .replace(/['']/g, "'")
-    .replace(/[《》<>＜＞]/g, "")
-    .replace(/[Ø]/gi, "o")
-    .replace(/[×x]/g, "x")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function similarity(a: string, b: string): number {
-  const na = normalize(a);
-  const nb = normalize(b);
+function similarityNorm(na: string, nb: string): number {
   if (na === nb) return 1.0;
   const maxLen = Math.max(na.length, nb.length);
   if (maxLen === 0) return 1.0;
   let score = 1 - distance(na, nb) / maxLen;
-  // クエリが曲名に含まれる場合（またはその逆）、ボーナスを加算
   if (na.length >= 2 && nb.length >= 2) {
     if (nb.includes(na)) {
       score = Math.max(score, 0.8 + 0.2 * (na.length / nb.length));
@@ -236,6 +244,12 @@ function similarity(a: string, b: string): number {
   return score;
 }
 
+function scoreSong(normQuery: string, song: SongIndexed): number {
+  const s1 = similarityNorm(normQuery, song.normFullTitle);
+  if (s1 === 1.0) return 1.0;
+  return Math.max(s1, similarityNorm(normQuery, song.normTitle));
+}
+
 export function findBestMatch(
   ocrTitleCandidates: string[],
   diffName: string | null,
@@ -244,9 +258,10 @@ export function findBestMatch(
   const allMatches: MatchResult[] = [];
 
   for (const title of ocrTitleCandidates) {
+    const normQuery = normalize(title);
     let bestForTitle: MatchResult | null = null;
     for (const song of songMap) {
-      const score = Math.max(similarity(title, song.fullTitle), similarity(title, song.title));
+      const score = scoreSong(normQuery, song);
       if (score < 0.4) continue;
       const diff = suffix
         ? song.difficulties.find((d) => d.suffix === suffix && d.level != null)
@@ -283,10 +298,11 @@ export interface SearchResult {
 }
 
 export function searchSongs(query: string): SearchResult[] {
+  const normQuery = normalize(query);
   const allMatches: SearchResult[] = [];
 
   for (const song of songMap) {
-    const score = Math.max(similarity(query, song.fullTitle), similarity(query, song.title));
+    const score = scoreSong(normQuery, song);
     if (score < 0.3) continue;
     const hasValidDiff = song.difficulties.some((d) => d.level != null);
     if (!hasValidDiff) continue;

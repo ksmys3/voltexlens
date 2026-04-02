@@ -139,7 +139,8 @@
   text-overflow: ellipsis;
 }
 
-.searchRowSubtitle {
+.searchRowSubtitle,
+.historyRowSubtitle {
   font-size: 12px;
   color: #888;
 }
@@ -332,16 +333,11 @@
   margin: 0 0 4px;
 }
 
-.resultSubtitle {
-  font-size: 14px;
-  color: #888;
-  margin: 0 0 4px;
-}
-
+.resultSubtitle,
 .resultArtist {
   font-size: 14px;
   color: #888;
-  margin: 0;
+  margin: 0 0 4px;
 }
 
 .resultScore {
@@ -453,11 +449,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.historyRowSubtitle {
-  font-size: 12px;
-  color: #888;
 }
 
 .historyRowDate {

@@ -6,10 +6,13 @@ import styles from "./page.module.css";
 type Version = "sdvx6" | "sdvx7";
 type AppState = "select" | "camera" | "analyzing" | "result" | "error" | "history" | "search";
 
-interface MatchResult {
+interface SongMeta {
   title: string;
   artist: string | null;
   subtitle: string | null;
+}
+
+interface MatchResult extends SongMeta {
   difficulty: string;
   level: number;
   detailedLevel: string | null;
@@ -17,10 +20,7 @@ interface MatchResult {
   url: string;
 }
 
-interface HistoryEntry {
-  title: string;
-  artist: string | null;
-  subtitle: string | null;
+interface HistoryEntry extends SongMeta {
   difficulty: string;
   level: number;
   detailedLevel: string | null;
@@ -36,10 +36,7 @@ interface SearchDifficulty {
   url: string;
 }
 
-interface SearchResultEntry {
-  title: string;
-  artist: string | null;
-  subtitle: string | null;
+interface SearchResultEntry extends SongMeta {
   score: number;
   difficulties: SearchDifficulty[];
 }
