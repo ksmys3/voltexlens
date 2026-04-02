@@ -246,7 +246,7 @@ export function findBestMatch(
   for (const title of ocrTitleCandidates) {
     let bestForTitle: MatchResult | null = null;
     for (const song of songMap) {
-      const score = similarity(title, song.fullTitle);
+      const score = Math.max(similarity(title, song.fullTitle), similarity(title, song.title));
       if (score < 0.4) continue;
       const diff = suffix
         ? song.difficulties.find((d) => d.suffix === suffix && d.level != null)
@@ -286,13 +286,13 @@ export function searchSongs(query: string): SearchResult[] {
   const allMatches: SearchResult[] = [];
 
   for (const song of songMap) {
-    const score = similarity(query, song.fullTitle);
+    const score = Math.max(similarity(query, song.fullTitle), similarity(query, song.title));
     if (score < 0.3) continue;
     const hasValidDiff = song.difficulties.some((d) => d.level != null);
     if (!hasValidDiff) continue;
     allMatches.push({ song, score });
   }
 
-  allMatches.sort((a, b) => b.score - a.score);
+  allMatches.sort((a, b) => b.score - a.score || (a.song.subtitle ? 1 : 0) - (b.song.subtitle ? 1 : 0));
   return allMatches.slice(0, 10);
 }
