@@ -5,5 +5,6 @@ node_modules/
 .env*
 eval_result_photos/
 .claude/
+CLAUDE.md
 scripts/
 tsconfig.tsbuildinfo
