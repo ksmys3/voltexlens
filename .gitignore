@@ -6,3 +6,4 @@ qr.png
 .vercel
 .env*
 eval_result_photos/
+.claude/
