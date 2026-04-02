@@ -18,6 +18,7 @@
   font-size: 18px;
   margin: 0;
   font-weight: 700;
+  flex: 1;
 }
 
 .backBtn {
@@ -247,6 +248,13 @@
   color: #f44;
 }
 
+.errorHint {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  margin: 0;
+}
+
 /* 履歴セクション (select画面内) */
 .historySection {
   width: 100%;
@@ -344,17 +352,4 @@
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
-}
-
-.clearBtn {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin-top: 24px;
-  font-size: 14px;
-  color: #f44;
-  background: transparent;
-  border: 1px solid #f44;
-  border-radius: 8px;
-  cursor: pointer;
 }
