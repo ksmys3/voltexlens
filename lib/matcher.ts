@@ -58,6 +58,7 @@ function normalize(str: string): string {
 interface SongIndexed extends Song {
   normTitle: string;
   normFullTitle: string;
+  normArtist: string;
 }
 
 const songMapPath = path.join(process.cwd(), "data", "song-map.json");
@@ -65,6 +66,7 @@ const songMap: SongIndexed[] = (JSON.parse(fs.readFileSync(songMapPath, "utf-8")
   ...s,
   normTitle: normalize(s.title),
   normFullTitle: normalize(s.fullTitle),
+  normArtist: normalize(s.artist ?? ""),
 }));
 
 // === 定数 ===
@@ -250,30 +252,74 @@ function scoreSong(normQuery: string, song: SongIndexed): number {
   return Math.max(s1, similarityNorm(normQuery, song.normTitle));
 }
 
+/**
+ * 候補全体をアーティスト名補助付きでsong-mapと照合する。
+ *
+ * 各曲に対して:
+ *   1. 全候補からtitleに最も近いものを探す (titleScore)
+ *   2. 全候補からartistに最も近いものを探す (artistScore)
+ *   3. アーティストが高スコアならボーナス加算
+ *      → 短い曲名("I", "V"等)でもアーティスト名で確定できる
+ */
 export function findBestMatch(
   ocrTitleCandidates: string[],
   diffName: string | null,
 ): MatchResult[] {
   const suffix = diffNameToSuffix(diffName);
+  if (ocrTitleCandidates.length === 0) return [];
+
+  const normCandidates = ocrTitleCandidates.map((c) => ({
+    raw: c,
+    norm: normalize(c),
+  }));
+
   const allMatches: MatchResult[] = [];
 
-  for (const title of ocrTitleCandidates) {
-    const normQuery = normalize(title);
-    let bestForTitle: MatchResult | null = null;
-    for (const song of songMap) {
-      const score = scoreSong(normQuery, song);
-      if (score < 0.4) continue;
-      const diff = suffix
-        ? song.difficulties.find((d) => d.suffix === suffix && d.level != null)
-        : [...song.difficulties].reverse().find((d) => d.level != null);
-      if (diff && (!bestForTitle || score > bestForTitle.score)) {
-        bestForTitle = {
-          song, diff, score, ocrTitle: title,
-          url: `https://sdvx.in/${song.version}/${song.songId}${diff.suffix}.htm`,
-        };
+  for (const song of songMap) {
+    // 該当難易度があるか先にチェック
+    const diff = suffix
+      ? song.difficulties.find((d) => d.suffix === suffix && d.level != null)
+      : [...song.difficulties].reverse().find((d) => d.level != null);
+    if (!diff) continue;
+
+    // 全候補の中からtitleに最も近いものを探す
+    let bestTitleScore = 0;
+    let bestTitleRaw = "";
+    for (const c of normCandidates) {
+      const s = scoreSong(c.norm, song);
+      if (s > bestTitleScore) {
+        bestTitleScore = s;
+        bestTitleRaw = c.raw;
       }
     }
-    if (bestForTitle) allMatches.push(bestForTitle);
+    if (bestTitleScore < 0.4) continue;
+
+    // 全候補の中からartistに最も近いものを探す
+    let bestArtistScore = 0;
+    if (song.normArtist.length > 0) {
+      for (const c of normCandidates) {
+        // titleと同じ候補でもartistとマッチする可能性はあるが、
+        // title候補と別の候補がartistにマッチする方が信頼度が高い
+        const s = similarityNorm(c.norm, song.normArtist);
+        if (s > bestArtistScore) {
+          bestArtistScore = s;
+        }
+      }
+    }
+
+    // アーティスト一致ボーナス: artistが0.7以上でマッチすれば加算
+    let combinedScore = bestTitleScore;
+    if (bestArtistScore >= 0.7) {
+      combinedScore += bestArtistScore * 0.3;
+    }
+
+    allMatches.push({
+      song,
+      diff,
+      score: combinedScore,
+      ocrTitle: bestTitleRaw,
+      url: `https://sdvx.in/${song.version}/${song.songId}${diff.suffix}.htm`,
+    });
   }
 
   allMatches.sort((a, b) => b.score - a.score);
