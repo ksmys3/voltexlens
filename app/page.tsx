@@ -156,7 +156,7 @@ export default function Home() {
         const data = await res.json();
 
         if (!res.ok) {
-          setErrorMsg(data.error || "解析に失敗しました");
+          setErrorMsg(data.error || `解析に失敗しました (HTTP ${res.status})`);
           setState("error");
           return;
         }
@@ -169,8 +169,9 @@ export default function Home() {
           setErrorMsg("楽曲を特定できませんでした");
           setState("error");
         }
-      } catch {
-        setErrorMsg("通信エラーが発生しました");
+      } catch (err) {
+        const detail = err instanceof Error ? err.message : String(err);
+        setErrorMsg(`通信エラー: ${detail}`);
         setState("error");
       }
     }, "image/jpeg", 0.9);
