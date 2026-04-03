@@ -398,7 +398,7 @@
   font-weight: 600;
   color: #fff;
   background: #1a1a1a;
-  border: 1px solid #333;
+  border: 1.5px solid #4ade80;
   border-radius: 14px;
   cursor: pointer;
   text-decoration: none;
@@ -407,19 +407,22 @@
 
 .linkBtn:active {
   background: #252525;
-  border-color: #555;
+  border-color: #86efac;
 }
 
 .resultActions {
   display: flex;
+  justify-content: center;
   gap: 12px;
 }
 
 .resultActionBtn {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex: 1;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 10px 16px;
   font-size: 13px;
   color: #aaa;
   background: transparent;

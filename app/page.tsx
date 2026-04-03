@@ -471,7 +471,7 @@ export default function Home() {
             })}
           >
             <IconOpenChart />
-            譜面を表示
+            譜面を表示 (sdvx.in)
           </a>
           <div className={styles.resultActions}>
             <button onClick={retake} className={styles.resultActionBtn}>
