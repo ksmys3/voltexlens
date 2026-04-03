@@ -44,6 +44,10 @@ interface SearchResultEntry extends SongMeta {
 const HISTORY_KEY = "voltexlens-history";
 const HISTORY_MAX = 100;
 
+function isSafeUrl(url: string): boolean {
+  return url.startsWith("https://sdvx.in/");
+}
+
 function loadHistory(): HistoryEntry[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
@@ -346,7 +350,7 @@ export default function Home() {
                     {r.difficulties.map((d) => (
                       <a
                         key={d.suffix}
-                        href={d.url}
+                        href={isSafeUrl(d.url) ? d.url : "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={styles.diffPill}
@@ -411,7 +415,7 @@ export default function Home() {
             </p>
           </div>
           <a
-            href={result.url}
+            href={isSafeUrl(result.url) ? result.url : "#"}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.linkBtn}
@@ -449,7 +453,7 @@ export default function Home() {
                       </span>
                     </div>
                     <a
-                      href={alt.url}
+                      href={isSafeUrl(alt.url) ? alt.url : "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.historyRowLink}
@@ -510,7 +514,7 @@ function HistoryRow({ entry, onOpen }: { entry: HistoryEntry; onOpen: (e: Omit<H
       </div>
       <span className={styles.historyRowDate}>{dateStr}</span>
       <a
-        href={entry.url}
+        href={isSafeUrl(entry.url) ? entry.url : "#"}
         target="_blank"
         rel="noopener noreferrer"
         className={styles.historyRowLink}
