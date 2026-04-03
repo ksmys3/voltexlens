@@ -41,6 +41,57 @@ interface SearchResultEntry extends SongMeta {
   difficulties: SearchDifficulty[];
 }
 
+// SVG Icons (extracted to avoid duplication)
+const IconCamera = ({ size = 20, className }: { size?: number; className?: string }) => (
+  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <circle cx="12" cy="13" r="4" />
+  </svg>
+);
+
+const IconSearch = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const IconRetry = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 4 23 10 17 10" />
+    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+  </svg>
+);
+
+const IconExternalLink = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 17L17 7" />
+    <path d="M7 7h10v10" />
+  </svg>
+);
+
+const IconOpenChart = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <polyline points="15 3 21 3 21 9" />
+    <line x1="10" y1="14" x2="21" y2="3" />
+  </svg>
+);
+
+const IconHome = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <polyline points="9 22 9 12 15 12 15 22" />
+  </svg>
+);
+
+const IconTrash = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
 const HISTORY_KEY = "voltexlens-history";
 const HISTORY_MAX = 100;
 
@@ -141,6 +192,11 @@ export default function Home() {
     setState("analyzing");
 
     canvas.toBlob(async (blob) => {
+      // Free canvas memory after blob creation
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.width = 0;
+      canvas.height = 0;
+
       if (!blob) {
         setErrorMsg("画像の取得に失敗しました");
         setState("error");
@@ -202,6 +258,12 @@ export default function Home() {
     setHistory(updated);
   }, []);
 
+  const goToSearch = useCallback(() => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setState("search");
+  }, []);
+
   const handleSearchInput = useCallback((q: string) => {
     setSearchQuery(q);
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -229,10 +291,7 @@ export default function Home() {
       <header className={styles.header}>
         {state !== "select" && (
           <button onClick={reset} className={styles.backBtn} aria-label="ホーム">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
+            <IconHome />
           </button>
         )}
         <h1 className={styles.title}>VoltexLens</h1>
@@ -248,10 +307,7 @@ export default function Home() {
             className={styles.backBtn}
             aria-label="履歴をすべて削除"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
+            <IconTrash />
           </button>
         )}
       </header>
@@ -260,37 +316,21 @@ export default function Home() {
         <div className={styles.selectView}>
           <div className={styles.selectViewButtons}>
             <button onClick={() => startCamera("sdvx7")} className={`${styles.versionCard} ${styles.versionCardVii}`}>
-              <svg className={styles.versionCardIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
+              <IconCamera className={styles.versionCardIcon} />
               <div className={styles.versionCardText}>
                 <span className={styles.versionCardName}>SDVX ∇</span>
                 <span className={styles.versionCardSub}>アーケード</span>
               </div>
             </button>
             <button onClick={() => startCamera("sdvx6")} className={`${styles.versionCard} ${styles.versionCardVi}`}>
-              <svg className={styles.versionCardIcon} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
+              <IconCamera className={styles.versionCardIcon} />
               <div className={styles.versionCardText}>
                 <span className={styles.versionCardName}>SDVX EXCEED GEAR</span>
                 <span className={styles.versionCardSub}>コナステ</span>
               </div>
             </button>
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setSearchResults([]);
-                setState("search");
-              }}
-              className={styles.searchLinkBtn}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+            <button onClick={goToSearch} className={styles.searchLinkBtn}>
+              <IconSearch size={14} />
               曲名で検索
             </button>
             <p className={styles.caveat}>
@@ -430,28 +470,16 @@ export default function Home() {
               url: result.url,
             })}
           >
-            譜面を表示 (sdvx.in)
+            <IconOpenChart />
+            譜面を表示
           </a>
           <div className={styles.resultActions}>
             <button onClick={retake} className={styles.resultActionBtn}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-              </svg>
+              <IconRetry size={18} />
               再撮影
             </button>
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setSearchResults([]);
-                setState("search");
-              }}
-              className={styles.resultActionBtn}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+            <button onClick={goToSearch} className={styles.resultActionBtn}>
+              <IconSearch size={18} />
               曲名で検索
             </button>
           </div>
@@ -486,10 +514,7 @@ export default function Home() {
                       })}
                       aria-label="譜面を表示"
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M7 17L17 7" />
-                        <path d="M7 7h10v10" />
-                      </svg>
+                      <IconExternalLink />
                     </a>
                   </li>
                 ))}
@@ -504,10 +529,7 @@ export default function Home() {
           <p className={styles.errorMsg}>{errorMsg}</p>
           <p className={styles.errorHint}>難易度表示と楽曲タイトルが枠内に映るように撮影してください</p>
           <button onClick={retake} className={styles.retryBtn} aria-label="もう一度撮影">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
+            <IconRetry />
           </button>
         </div>
       )}

@@ -55,12 +55,6 @@
   width: 100%;
 }
 
-.selectLabel {
-  font-size: 16px;
-  color: #aaa;
-  text-align: center;
-}
-
 .versionCard {
   display: flex;
   align-items: center;
@@ -344,6 +338,11 @@
   padding: 24px;
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .spinner {
   width: 40px;
   height: 40px;
@@ -388,18 +387,27 @@
 }
 
 .linkBtn {
-  padding: 14px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  background: #16a34a;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 28px;
   width: 80%;
   max-width: 320px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.linkBtn:active {
+  background: #252525;
+  border-color: #555;
 }
 
 .resultActions {
