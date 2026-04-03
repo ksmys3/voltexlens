@@ -402,6 +402,11 @@
   max-width: 320px;
 }
 
+.resultActions {
+  display: flex;
+  gap: 16px;
+}
+
 .retryBtn {
   padding: 10px;
   background: transparent;

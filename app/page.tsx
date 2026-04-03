@@ -432,12 +432,28 @@ export default function Home() {
           >
             譜面を表示 (sdvx.in)
           </a>
-          <button onClick={retake} className={styles.retryBtn} aria-label="もう一度撮影">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-            </svg>
-          </button>
+          <div className={styles.resultActions}>
+            <button onClick={retake} className={styles.retryBtn} aria-label="もう一度撮影">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+            </button>
+            <button
+              onClick={() => {
+                setSearchQuery(result.title);
+                setSearchResults([]);
+                setState("search");
+              }}
+              className={styles.retryBtn}
+              aria-label="曲名で検索"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </div>
           {alternatives.length > 0 && (
             <div className={styles.altSection}>
               <p className={styles.altTitle}>もしかして？</p>
