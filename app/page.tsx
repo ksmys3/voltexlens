@@ -293,6 +293,9 @@ export default function Home() {
               </svg>
               曲名で検索
             </button>
+            <p className={styles.caveat}>
+              タイトルが1〜2文字の楽曲は画像からの特定が難しい場合があります。その場合は曲名検索をご利用ください。
+            </p>
           </div>
           {history.length > 0 && (
             <div className={styles.historySection}>
@@ -411,9 +414,6 @@ export default function Home() {
             {result.artist && (
               <p className={styles.resultArtist}>{result.artist}</p>
             )}
-            <p className={styles.resultScore}>
-              一致度: {(result.score * 100).toFixed(0)}%
-            </p>
           </div>
           <a
             href={isSafeUrl(result.url) ? result.url : "#"}

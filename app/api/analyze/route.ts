@@ -104,9 +104,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("Analyze error:", err);
-    const detail = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: `サーバーエラー: ${detail}` },
+      { error: "サーバーエラーが発生しました" },
       { status: 500 },
     );
   }
