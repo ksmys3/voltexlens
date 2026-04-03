@@ -404,7 +404,20 @@
 
 .resultActions {
   display: flex;
-  gap: 16px;
+  gap: 12px;
+}
+
+.resultActionBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #aaa;
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .retryBtn {
