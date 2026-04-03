@@ -301,11 +301,11 @@ export default function Home() {
             <div className={styles.historySection}>
               <p className={styles.historySectionTitle}>最近の履歴</p>
               <ul className={styles.historyList}>
-                {history.slice(0, 5).map((entry) => (
+                {history.slice(0, 3).map((entry) => (
                   <HistoryRow key={entry.url} entry={entry} onOpen={handleOpenChart} />
                 ))}
               </ul>
-              {history.length > 5 && (
+              {history.length > 3 && (
                 <button onClick={() => setState("history")} className={styles.showAllBtn}>
                   すべて表示
                 </button>
@@ -441,7 +441,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => {
-                setSearchQuery(result.title);
+                setSearchQuery("");
                 setSearchResults([]);
                 setState("search");
               }}
